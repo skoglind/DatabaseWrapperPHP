@@ -5,7 +5,7 @@
      * @author Fredrik Skoglind, 2020
      */
     class DatabaseWrapper {
-        const STANDARD_LIMIT = 250;
+        const STANDARD_LIMIT = 500;
 
         private $db;
 
@@ -86,23 +86,38 @@
         }
 
         /**
-         * getResultsAsArray Get result as associative array
+         * doQueryReturnObj      Run SQL-Query, return MySQLi object
+         * @return mysqli
+         */
+        public function doQueryReturnObj( string $sql ) {
+            if( $this->isConnected() ) {
+                return $this->db->query( $sql );
+            } return false;
+        }
+
+        /**
+         * getResultsAsArray Get results as associative array, multiple rows
          * @param string    SQL-Query 
+         * @param int       Start from row
+         * @param int       Max rows
+         * @param bool      If limit is active 
          * @return array
          */
-        public function getResultsAsArray( string $sql, 
-                                          int $startAt = 0, 
-                                          int $limit = self::STANDARD_LIMIT ) : array {
+        public function getResultsAsArray( string $sql,
+                                           int $startAt = 0, 
+                                           int $limit = self::STANDARD_LIMIT,
+                                           bool $hasLimit = true ) : array {
+            if( $hasLimit ) { $sql .= ' LIMIT ' . $startAt . ', ' . $limit; }
             if( $this->isConnected() ) {
-                $result = $this->db->query( $sql . ' LIMIT ' . $startAt . ', ' . $limit );
-                if( $result ) { 
-                    for($i = $startAt; $i < ($startAt + $limit); $i++) {
-                        $data = $result->fetch_array(MYSQLI_ASSOC);
-                        if( $data == null ) { break; }
+                $result = $this->db->query( $sql );
+                if( $result ) {
+                    $i = 0;
+                    while( $data = $result->fetch_array(MYSQLI_ASSOC) ) {
+                        if( $hasLimit && $i >= ($startAt + $limit) ) { break; } $i++; // Add limit to loop
                         $resultArray[] = $data;
                     }
                     $result->free();
-                    return $resultArray;
+                    return isset($resultArray) ? $resultArray : array();
                 }
             } return array();
         }
@@ -113,6 +128,13 @@
          * @return array
          */
         public function getResultAsArray( string $sql ) : array { return $this->getResultsAsArray( $sql, 0, 1 ); }
+
+        /**
+         * getResultAsArrayNoLimit Get result as associative array, don't limit rows
+         * @param string    SQL-Query
+         * @return array
+         */
+        public function getResultAsArrayNoLimit( string $sql ) : array { return $this->getResultsAsArray( $sql, 0, 0, false ); }
 
         /** 
          * escapeString Protect string from SQL-injections
@@ -138,6 +160,12 @@
          * @return int
          */
         public function getLastID() : int { return isset($this->db->insert_id) ? intval($this->db->insert_id) : -1; }
+
+        /**
+         * getDatabaseName
+         * @return string
+         */
+        public function getDatabaseName() : string { return $this->db_database_name; }
     }
 
 ?>
