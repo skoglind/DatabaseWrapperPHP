@@ -1,6 +1,9 @@
 # DatabaseWrapperPHP
 
-PHP Klass
-Wrapper för databaskopplingar i PHP, för att hantera både MySQL- och MSAccess-databaser.
+En klass för att underlätta hanteringen av databaskopplingar i PHP.
 
-OBS!! Lagrar hämtad data i en Array vilket är lite för minneskrävande för stora datamängder.
+#### dbwrapper_2010.php
+- Skriven 2010, wrapper för ODBC och MySQLi
+
+#### dbwrapper_2020.php
+- Skriven 2020, wrapper för MySQLi
