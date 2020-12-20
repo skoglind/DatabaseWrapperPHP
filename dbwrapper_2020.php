@@ -86,16 +86,6 @@
         }
 
         /**
-         * doQueryReturnObj      Run SQL-Query, return MySQLi object
-         * @return mysqli
-         */
-        public function doQueryReturnObj( string $sql ) {
-            if( $this->isConnected() ) {
-                return $this->db->query( $sql );
-            } return false;
-        }
-
-        /**
          * getResultsAsArray Get results as associative array, multiple rows
          * @param string    SQL-Query 
          * @param int       Start from row
